@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Vitrine de Agentes de IA</title>
+<style>
+  :root{
+    --bg:#0b0c10;
+    --card:#111218;
+    --muted:#9aa0a6;
+    --text:#e8eaed;
+    --primary:#7c5cff;
+    --primary-2:#5a3df3;
+    --accent:#22c55e;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --border:#1f2230;
+    --shadow: 0 10px 30px rgba(0,0,0,.35);
+    --radius: 16px;
+  }
+  [data-theme="light"]{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --muted:#5f6368;
+    --text:#202124;
+    --primary:#6c4dff;
+    --primary-2:#5a3df3;
+    --accent:#16a34a;
+    --danger:#dc2626;
+    --warning:#d97706;
+    --border:#e5e7eb;
+    --shadow: 0 10px 24px rgba(0,0,0,.08);
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.45;
+  }
+  a{color:inherit;text-decoration:none}
+  .container{max-width:1200px;margin:0 auto;padding:20px}
+
+  /* Header */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg, rgba(0,0,0,.18), transparent);
+    backdrop-filter:saturate(140%) blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .head{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 20px;max-width:1200px;margin:0 auto;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;
+  }
+  .logo-badge{background:var(--primary);color:#fff;border-radius:12px;padding:6px 8px;font-size:12px}
+  .grow{flex:1}
+  .search{
+    display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);
+    padding:10px 12px;border-radius:999px;box-shadow:var(--shadow);max-width:520px;width:100%;
+  }
+  .search input{
+    flex:1;border:none;background:transparent;color:var(--text);outline:none;font-size:14px;
+  }
+  .actions{display:flex;align-items:center;gap:10px}
+  .btn, button{
+    background:var(--card);border:1px solid var(--border);color:var(--text);
+    padding:10px 14px;border-radius:12px;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn.primary{background:var(--primary);border-color:transparent;color:#fff}
+  .btn.ghost{background:transparent}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 10px;border-radius:999px;
+    border:1px solid var(--border);background:var(--card);color:var(--muted)
+  }
+
+  /* Hero */
+  .hero{
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    margin:26px 0 12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:22px 22px;box-shadow:var(--shadow);
+  }
+  .hero h1{margin:0 0 6px 0;font-size:22px}
+  .hero p{margin:0;color:var(--muted)}
+  .hero .right{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* Filters */
+  .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+  .select{
+    padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--text)
+  }
+
+  /* Grid */
+  .grid{
+    display:grid;grid-template-columns:repeat(3, 1fr);gap:16px;margin-top:16px
+  }
+  @media (max-width:980px){.grid{grid-template-columns:repeat(2, 1fr)}}
+  @media (max-width:640px){
+    .grid{grid-template-columns:1fr}
+    .hero{flex-direction:column;align-items:flex-start}
+    .head{padding:12px}
+    .search{max-width:none}
+  }
+
+  .card{
+    border:1px solid var(--border);background:var(--card);border-radius:var(--radius);
+    padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden
+  }
+  .card .emoji{font-size:28px}
+  .card h3{margin:0;font-size:18px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  .bullet{display:flex;gap:8px;align-items:flex-start;color:var(--muted);font-size:14px}
+  .bullet::before{content:"•";color:var(--primary);line-height:1.4}
+  .card .footer{margin-top:auto;display:flex;gap:10px;align-items:center;justify-content:space-between}
+
+  /* Modal (detalhes) */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:100}
+  .overlay.show{display:flex}
+  .modal{
+    width:min(980px, 96vw);max-height:90vh;overflow:auto;background:var(--card);border:1px solid var(--border);
+    border-radius:20px;box-shadow:var(--shadow);display:grid;grid-template-columns: 1.1fr .9fr;
+  }
+  @media (max-width:900px){.modal{grid-template-columns:1fr}}
+  .modal .left{padding:20px;border-right:1px solid var(--border)}
+  .modal .right{padding:20px}
+  .modal header{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--border)}
+  .modal h2{margin:10px 0 4px 0}
+  .tag{font-size:12px;border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);display:inline-flex;gap:6px;align-items:center}
+  .list{display:grid;gap:8px;margin:12px 0}
+  .chat{
+    border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px;height:360px
+  }
+  .msg{max-width:80%;padding:10px 12px;border-radius:14px;font-size:14px}
+  .msg.agent{background:rgba(124,92,255,.15);border:1px solid var(--border)}
+  .msg.user{background:transparent;border:1px dashed var(--border);margin-left:auto}
+  .composer{display:flex;gap:10px;margin-top:auto}
+  .composer input{flex:1;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:12px;padding:10px}
+  .composer button{padding:10px 14px;border-radius:12px}
+
+  /* Drawer Perfil */
+  .drawer{position:fixed;right:-420px;top:0;height:100%;width:360px;background:var(--card);border-left:1px solid var(--border);box-shadow:var(--shadow);transition:.25s;z-index:90;padding:18px;overflow:auto}
+  .drawer.show{right:0}
+  .drawer h4{margin:8px 0 14px 0}
+  .mini{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);background:transparent;padding:10px;border-radius:12px;margin-bottom:10px}
+  .switch{position:relative;width:46px;height:26px;background:#444;border-radius:999px;border:1px solid var(--border);cursor:pointer}
+  .switch input{display:none}
+  .switch span{position:absolute;top:50%;left:2px;transform:translateY(-50%);width:22px;height:22px;background:#fff;border-radius:50%;transition:.2s}
+  .switch input:checked + span{left:22px}
+
+  /* Toast */
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;background:var(--card);border:1px solid var(--border);padding:12px 16px;border-radius:12px;display:none;z-index:120;box-shadow:var(--shadow)}
+  .toast.show{display:block}
+
+  /* Bottom nav (mobile) */
+  .bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);
+    display:none;justify-content:space-around;padding:10px 8px;z-index:60
+  }
+  .bottom-nav button{border-radius:12px}
+  @media (max-width:640px){.bottom-nav{display:flex}}
+</style>
+</head>
+<body data-theme="dark">
+  <header>
+    <div class="head">
+      <div class="logo">
+        <span class="logo-badge">IA</span> Vitrine de Agentes
+      </div>
+      <div class="grow"></div>
+      <label class="search" aria-label="Buscar agentes">
+        🔎
+        <input id="search" placeholder="Buscar agentes, ex: estudantes..." />
+      </label>
+      <div class="actions">
+        <button id="theme" class="btn" title="Alternar tema">🌓 Tema</button>
+        <button id="perfilBtn" class="btn">👤 Meu Perfil</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="hero">
+      <div>
+        <h1>O futuro já começou.</h1>
+        <p>A Inteligência Artificial já está transformando vidas. Escolha um agente e experimente.</p>
+      </div>
+      <div class="right">
+        <span class="chip">✅ Seguro</span>
+        <span class="chip">⚡ Rápido</span>
+        <span class="chip">🔔 Notificações</span>
+      </div>
+    </section>
+
+    <section class="filters">
+      <select id="categoria" class="select" aria-label="Filtrar por categoria">
+        <option value="">Todas as categorias</option>
+        <option value="maes">Mães Solteiras</option>
+        <option value="idosos">Idosos</option>
+        <option value="estudantes">Estudantes</option>
+      </select>
+      <select id="preco" class="select" aria-label="Filtrar por plano">
+        <option value="">Todos os planos</option>
+        <option value="gratis">Grátis</option>
+        <option value="pago">Pago</option>
+        <option value="premium">Premium</option>
+      </select>
+      <button id="limpar" class="btn ghost">Limpar filtros</button>
+    </section>
+
+    <section id="grid" class="grid" aria-live="polite"></section>
+  </div>
+
+  <!-- Drawer Perfil -->
+  <aside id="drawer" class="drawer" aria-label="Meu Perfil" aria-hidden="true">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <h4>👤 Meus Agentes</h4>
+      <button class="btn ghost" id="closeDrawer">✖</button>
+    </div>
+    <div id="perfilList"></div>
+    <hr style="border-color:var(--border);margin:16px 0">
+    <h4>⚙️ Preferências</h4>
+    <div class="mini">
+      <div>
+        <div style="font-weight:600">Notificações gerais</div>
+        <div class="muted" style="color:var(--muted);font-size:13px">Alertas e lembretes do app</div>
+      </div>
+      <label class="switch" title="Ativar notificações">
+        <input id="notifGlobal" type="checkbox"><span></span>
+      </label>
+    </div>
+    <div class="mini">
+      <div>
+        <div style="font-weight:600">Tema escuro</div>
+        <div class="muted" style="color:var(--muted);font-size:13px">Conforto visual</div>
+      </div>
+      <label class="switch" title="Alternar tema">
+        <input id="darkSwitch" type="checkbox" checked><span></span>
+      </label>
+    </div>
+  </aside>
+
+  <!-- Modal Detalhes -->
+  <div id="overlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal" role="document">
+      <div class="left">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="detailEmoji" class="emoji">🤖</div>
+            <div>
+              <h2 id="detailTitle">Agente</h2>
+              <div class="tag" id="detailTag">Categoria</div>
+            </div>
+          </div>
+          <button id="closeModal" class="btn ghost">✖</button>
+        </div>
+        <p id="detailSummary" style="color:var(--muted);margin-top:8px">Resumo</p>
+        <div class="list" id="detailBullets"></div>
+
+        <div class="chat" aria-label="Prévia de chat">
+          <div class="msg agent" id="seedMsg">Olá! Como posso ajudar hoje? 🙂</div>
+          <div class="msg user">Preciso de ajuda para organizar minha semana.</div>
+          <div id="chatLog"></div>
+          <div class="composer">
+            <input id="composerInput" placeholder="Digite sua mensagem..." />
+            <button id="composerSend" class="btn primary">Enviar</button>
+          </div>
+        </div>
+      </div>
+      <div class="right">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <span class="tag">🔒 Privacidade</span>
+          <span class="tag">⚡ Rápido</span>
+          <span class="tag">🧠 Personalizado</span>
+        </div>
+
+        <h3 style="margin:8px 0">Configurações do Agente</h3>
+        <div class="mini">
+          <div>
+            <div style="font-weight:600">Lembretes</div>
+            <div style="color:var(--muted);font-size:13px">Defina horários de notificações</div>
+          </div>
+          <label class="switch">
+            <input id="cfgReminders" type="checkbox" checked><span></span>
+          </label>
+        </div>
+        <div class="mini">
+          <div>
+            <div style="font-weight:600">E-mail</div>
+            <div style="color:var(--muted);font-size:13px">Receber por e-mail</div>
+          </div>
+          <label class="switch">
+            <input id="cfgEmail" type="checkbox"><span></span>
+          </label>
+        </div>
+        <div class="mini">
+          <div>
+            <div style="font-weight:600">WhatsApp</div>
+            <div style="color:var(--muted);font-size:13px">Enviar via WhatsApp</div>
+          </div>
+          <label class="switch">
+            <input id="cfgWhats" type="checkbox"><span></span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+          <button id="ativarBtn" class="btn primary">Ativar Agente</button>
+          <button id="addListaBtn" class="btn">Adicionar à lista</button>
+        </div>
+
+        <hr style="border-color:var(--border);margin:16px 0">
+        <h3 style="margin:8px 0">Plano</h3>
+        <div id="detailPlano" class="chip">Plano</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom nav (mobile) -->
+  <nav class="bottom-nav" aria-label="Navegação inferior">
+    <button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">🏠 Home</button>
+    <button class="btn" id="openPerfilMobile">👤 Perfil</button>
+    <button class="btn" id="openLast">💬 Último agente</button>
+    <button class="btn" id="openTheme">🌓</button>
+  </nav>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Agente ativado com sucesso ✅</div>
+
+<script>
+/* ======= Dados dos agentes ======= */
+const AGENTES = [
+  {
+    id: "maes",
+    emoji: "👩‍👧",
+    nome: "Agente para Mães Solteiras",
+    resumo: "Apoio na rotina, finanças e bem-estar.",
+    categoria: "Mães Solteiras",
+    plano: "Grátis",
+    bullets: [
+      "Agenda dos filhos (vacinas, consultas, reuniões)",
+      "Dicas de economia doméstica",
+      "Receitas rápidas e cuidados pessoais",
+      "Organização de tarefas e lembretes"
+    ]
+  },
+  {
+    id: "idosos",
+    emoji: "👴",
+    nome: "Agente para Idosos",
+    resumo: "Companhia digital e lembretes de saúde.",
+    categoria: "Idosos",
+    plano: "Pago",
+    bullets: [
+      "Lembretes de remédios e consultas",
+      "Conversas amigáveis e motivacionais",
+      "Explicações passo a passo",
+      "Jogos de memória e curiosidades"
+    ]
+  },
+  {
+    id: "estudantes",
+    emoji: "🎓",
+    nome: "Agente para Estudantes",
+    resumo: "Seu parceiro de estudos e motivação.",
+    categoria: "Estudantes",
+    plano: "Premium",
+    bullets: [
+      "Cronograma de provas e trabalhos",
+      "Ajuda com dúvidas e materiais",
+      "Técnicas de foco e produtividade",
+      "Mensagens motivacionais e pausas"
+    ]
+  }
+];
+
+/* ======= Estado simples ======= */
+let state = {
+  filtroCategoria: "",
+  filtroPreco: "",
+  busca: "",
+  ativo: JSON.parse(localStorage.getItem("ativados")||"[]"), // [{id, nome}]
+  ultimoAgenteId: localStorage.getItem("ultimoAgenteId") || null,
+  tema: localStorage.getItem("tema") || "dark",
+  notifGlobal: localStorage.getItem("notifGlobal")==="1"
+};
+
+document.body.dataset.theme = state.tema;
+
+/* ======= Helpers ======= */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+function showToast(txt="Ação realizada!"){
+  const el = $("#toast");
+  el.textContent = txt;
+  el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"), 2200);
+}
+
+function save(){
+  localStorage.setItem("ativados", JSON.stringify(state.ativo));
+  localStorage.setItem("tema", state.tema);
+  localStorage.setItem("notifGlobal", state.notifGlobal ? "1" : "0");
+  if(state.ultimoAgenteId) localStorage.setItem("ultimoAgenteId", state.ultimoAgenteId);
+}
+
+function renderGrid(){
+  const grid = $("#grid");
+  grid.innerHTML = "";
+  let lista = AGENTES.filter(a=>{
+    const cOK = !state.filtroCategoria || a.id===state.filtroCategoria;
+    const pOK = !state.filtroPreco || a.plano.toLowerCase()===state.filtroPreco;
+    const bOK = !state.busca || (a.nome+a.resumo+a.categoria).toLowerCase().includes(state.busca);
+    return cOK && pOK && bOK;
+  });
+  if(!lista.length){
+    grid.innerHTML = `<div class="card"><h3>Nenhum agente encontrado 😕</h3><p>Tente limpar os filtros ou buscar outro termo.</p></div>`;
+    return;
+  }
+
+  lista.forEach(a=>{
+    const wrap = document.createElement("article");
+    wrap.className = "card";
+    wrap.innerHTML = `
+      <div class="emoji" aria-hidden="true">${a.emoji}</div>
+      <h3>${a.nome}</h3>
+      <p>${a.resumo}</p>
+      <div class="bullet">Categoria: ${a.categoria}</div>
+      <div class="bullet">Plano: ${a.plano}</div>
+      <div class="footer">
+        <button class="btn primary" data-open="${a.id}">Ver Detalhes</button>
+        <button class="btn" data-ativar="${a.id}">Ativar</button>
+      </div>
+    `;
+    grid.appendChild(wrap);
+  });
+}
+
+function renderPerfil(){
+  const list = $("#perfilList");
+  if(!state.ativo.length){
+    list.innerHTML = `<p style="color:var(--muted)">Você ainda não ativou nenhum agente.</p>`;
+    return;
+  }
+  list.innerHTML = "";
+  state.ativo.forEach(item=>{
+    const ag = AGENTES.find(x=>x.id===item.id);
+    const row = document.createElement("div");
+    row.className = "mini";
+    row.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center">
+        <span style="font-size:18px">${ag.emoji}</span>
+        <div>
+          <div style="font-weight:700">${ag.nome}</div>
+          <div style="color:var(--muted);font-size:12px">${ag.categoria} • ${ag.plano}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn" data-open="${ag.id}" title="Abrir">Abrir</button>
+        <button class="btn" data-remover="${ag.id}" title="Remover" style="border-color:var(--danger);color:var(--danger)">Remover</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function openDrawer(open=true){
+  const d = $("#drawer");
+  d.classList.toggle("show", open);
+  d.setAttribute("aria-hidden", open?"false":"true");
+  if(open){ renderPerfil(); $("#notifGlobal").checked = !!state.notifGlobal; $("#darkSwitch").checked = (state.tema==="dark"); }
+}
+
+/* ======= Modal Detalhes ======= */
+let modalAgente = null;
+function openModalById(id){
+  const ag = AGENTES.find(x=>x.id===id);
+  if(!ag) return;
+  modalAgente = ag;
+  $("#detailEmoji").textContent = ag.emoji;
+  $("#detailTitle").textContent = ag.nome;
+  $("#detailTag").textContent = ag.categoria;
+  $("#detailSummary").textContent = ag.resumo;
+  $("#detailBullets").innerHTML = ag.bullets.map(b=>`<div class="bullet">${b}</div>`).join("");
+  $("#detailPlano").textContent = ag.plano;
+  $("#composerInput").value = "";
+  $("#chatLog").innerHTML = "";
+  $("#overlay").classList.add("show");
+  $("#overlay").setAttribute("aria-hidden", "false");
+  state.ultimoAgenteId = ag.id; save();
+}
+
+function closeModal(){
+  $("#overlay").classList.remove("show");
+  $("#overlay").setAttribute("aria-hidden", "true");
+  modalAgente = null;
+}
+
+/* ======= Ações ======= */
+function ativarAgente(id){
+  if(!state.ativo.some(x=>x.id===id)){
+    const ag = AGENTES.find(x=>x.id===id);
+    state.ativo.push({id: ag.id, nome: ag.nome});
+    save();
+    showToast("Agente ativado com sucesso ✅");
+    renderPerfil();
+  }else{
+    showToast("Esse agente já está ativo.");
+  }
+}
+
+function removerAgente(id){
+  state.ativo = state.ativo.filter(x=>x.id!==id);
+  save(); renderPerfil(); showToast("Agente removido.");
+}
+
+/* ======= Listeners ======= */
+document.addEventListener("click", (e)=>{
+  const t = e.target;
+
+  // Abrir detalhes
+  if(t.matches("[data-open]")){
+    const id = t.getAttribute("data-open");
+    openModalById(id);
+  }
+
+  // Ativar
+  if(t.matches("[data-ativar]")){
+    const id = t.getAttribute("data-ativar");
+    ativarAgente(id);
+  }
+
+  // Remover no perfil
+  if(t.matches("[data-remover]")){
+    const id = t.getAttribute("data-remover");
+    removerAgente(id);
+  }
+});
+
+$("#closeModal").addEventListener("click", closeModal);
+$("#overlay").addEventListener("click", (e)=>{ if(e.target.id==="overlay") closeModal(); });
+
+$("#composerSend").addEventListener("click", ()=>{
+  const v = $("#composerInput").value.trim();
+  if(!v) return;
+  const user = document.createElement("div");
+  user.className = "msg user";
+  user.textContent = v;
+  $("#chatLog").appendChild(user);
+  $("#composerInput").value = "";
+  // resposta fake
+  setTimeout(()=>{
+    const agentMsg = document.createElement("div");
+    agentMsg.className = "msg agent";
+    agentMsg.textContent = "Entendido! Vou configurar isso para você. ✅";
+    $("#chatLog").appendChild(agentMsg);
+  }, 450);
+});
+
+$("#theme").addEventListener("click", ()=>{
+  state.tema = (state.tema==="dark" ? "light" : "dark");
+  document.body.dataset.theme = state.tema; save();
+});
+$("#openTheme").addEventListener("click", ()=>$("#theme").click());
+
+$("#perfilBtn").addEventListener("click", ()=>openDrawer(true));
+$("#openPerfilMobile").addEventListener("click", ()=>openDrawer(true));
+$("#closeDrawer").addEventListener("click", ()=>openDrawer(false));
+
+$("#darkSwitch").addEventListener("change", (e)=>{
+  state.tema = e.target.checked ? "dark" : "light";
+  document.body.dataset.theme = state.tema; save();
+});
+
+$("#notifGlobal").addEventListener("change", (e)=>{
+  state.notifGlobal = e.target.checked; save();
+  showToast(state.notifGlobal ? "Notificações ativadas 🔔" : "Notificações desativadas 🔕");
+});
+
+$("#openLast").addEventListener("click", ()=>{
+  if(state.ultimoAgenteId){ openModalById(state.ultimoAgenteId); }
+  else showToast("Nenhum agente aberto ainda.");
+});
+
+/* Filtros */
+$("#categoria").addEventListener("change", e=>{ state.filtroCategoria = e.target.value; renderGrid(); });
+$("#preco").addEventListener("change", e=>{ state.filtroPreco = e.target.value; renderGrid(); });
+$("#limpar").addEventListener("click", ()=>{
+  state.filtroCategoria = ""; state.filtroPreco = ""; state.busca = "";
+  $("#categoria").value=""; $("#preco").value=""; $("#search").value="";
+  renderGrid();
+});
+$("#search").addEventListener("input", e=>{
+  state.busca = e.target.value.trim().toLowerCase();
+  renderGrid();
+});
+
+/* ======= Inicialização ======= */
+renderGrid();
+</script>
+</body>
+</html>
